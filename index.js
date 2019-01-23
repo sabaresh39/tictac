@@ -18,7 +18,7 @@
 */
 
 window.grid = [];
-const GRID_LENGTH = 3;
+const GRID_LENGTH = 4;
 let turn = 'X';
 
 function initializeGrid() {
@@ -83,8 +83,15 @@ function onBoxClick() {
 
 function addClickHandlers() {
     var boxes = document.getElementsByClassName("box");
+    let matchDraw = true;
     for (var idx = 0; idx < boxes.length; idx++) {
         boxes[idx].addEventListener('click', onBoxClick, false);
+        if(boxes[idx].innerHTML == ''){
+            matchDraw = false;
+        }
+    }
+    if(matchDraw){
+        document.getElementById('winner').innerHTML = "Match Draw!!"
     }
 }
 
@@ -104,29 +111,40 @@ function comMove(){
     checkForWin();
 }
 
+function isWinnerIdentified(arr) {
+  if(arr.includes(0)) return false;
+  let newSet = new Set(arr);
+  return newSet.size == 1;
+}
+
 function checkForWin(){
 
     let winIdentified = false;
+    let tmpRowArr = [];
+    let tmpColArr = [];
+    let tmpRDiagnolArr = [];
+    let tmpLDiagnolArr = [];
 
-    for(let i=0; i<GRID_LENGTH; i++){ //Checks vertically for the winner
-        if(grid[0][i] != 0 && (grid[0][i] == grid[1][i]) && (grid[1][i] == grid[2][i])){
+    for(let i=0; i<GRID_LENGTH; i++){ 
+        for(let j=0; j<GRID_LENGTH; j++){
+            tmpColArr.push(grid[j][i]);
+            tmpRowArr.push(grid[i][j]);
+            if(i == j){
+                tmpLDiagnolArr.push(grid[i][j]);
+            }
+            if(i == GRID_LENGTH - j - 1) {
+                tmpRDiagnolArr.push(grid[i][j])
+            }
+        }
+        if(isWinnerIdentified(tmpColArr) || isWinnerIdentified(tmpRowArr)){
             winIdentified = true;
             break;
         }
-    }
-    if(!winIdentified){ //Checks horizontally for the winner 
-        for(let i=0; i<GRID_LENGTH; i++){
-            if(grid[i][0] != 0 && (grid[i][0] == grid[i][1]) && (grid[i][1] == grid[i][2])){
-                winIdentified = true;
-                break;
-            }
-        }
+        tmpRowArr = []; tmpColArr = [];
     }
 
-    if(!winIdentified){ //Checks diagnolly for the winner
-        if(grid[0][0] != 0 && (grid[0][0] == grid[1][1]) && (grid[1][1] == grid[2][2])){
-            winIdentified = true;
-        } else if(grid[0][2] != 0 && (grid[0][2] == grid[1][1]) && (grid[1][1] == grid[2][0])){
+    if(!winIdentified){
+        if(isWinnerIdentified(tmpRDiagnolArr) || isWinnerIdentified(tmpLDiagnolArr)){
             winIdentified = true;
         }
     }
